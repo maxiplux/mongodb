@@ -1,0 +1,58 @@
+version: "3.3"
+services:
+  mongo1:
+    image: mongo:4.0-xenial
+    hostname: mongo1
+    restart: on-failure
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--replSet", "rs0"]
+    volumes:
+      - data-master:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - "27017:27017"
+
+  mongo2:
+    image: mongo:4.0-xenial
+    hostname: mongo2
+    restart: on-failure
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--replSet", "rs0"]
+
+    volumes:
+      - data-slave-2:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - "27018:27017"
+
+  mongo3:
+    image: mongo:4.0-xenial
+    hostname: mongo3
+    restart: on-failure
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "0.0.0.0", "--replSet", "rs0"]
+
+    volumes:
+      - data-slave-1:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - "27019:27017"
+  mongosetup:
+    image: mongo:4.0-xenial
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+
+volumes:
+  data-master:
+  data-slave-1:
+  data-slave-2:
+
+networks:
+  default:
+    external:
+      name: test
